@@ -1,90 +1,63 @@
-import RPi.GPIO as GPIO
 import time
 import threading
-import paho.mqtt.client as mqtt
 
-# Object
-class MQTTClientSubscriber:
+from Subscriber import Subscriber
+from Publisher import Publisher
+from Soil import Soil
+from Pump import Pump
 
-    def __init__(self, ip, port, topic, on_message):
-        self.topic = topic
-        client = mqtt.Client()
-        client.connect(ip,port,60)
-        client.on_connect = self.on_connect
-        client.on_message = on_message
-        client.loop_start()
+# mqtt connection data
+mqtt_ip = "localhost"
+mqtt_port = 1883
 
-    def on_connect(self, client, userdata, flags, rc):
-        print("Connected with result code "+str(rc))
-        client.subscribe(self.topic)
+# topics
+TOPIC_HANDLE_PUMP = 'handle/pump'
+TOPIC_HANDLE_AUTO = 'handle/auto'
+TOPIC_STATUS_SOIL = 'status/soil'
 
+# global variable to start and stop auto
+stop_thread = True
 
-class MQTTClientPublisher:
+subscriber = Subscriber(mqtt_ip, mqtt_port)
+publisher = Publisher(mqtt_ip, mqtt_port)
 
-    def __init__(self, ip, port, topic, to_publish):
-        client = mqtt.Client()
-        client.connect(ip, port, 60)
-        client.publish(topic, to_publish);
-        client.disconnect()
+soil = Soil()
+pump = Pump()
 
-# GPIO
-channelSoil = 21
-channelRelay = 16
+# threading functions
+def publish_pump(status):
+    global status_thread
+    if not stop_thread:
+        publisher.publish(TOPIC_HANDLE_PUMP, status)
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(channelSoil, GPIO.IN)
-GPIO.setup(channelRelay, GPIO.OUT)
-
-def motor_on(pin):
-    GPIO.output(pin, GPIO.HIGH)
-
-def motor_off(pin):
-    GPIO.output(pin, GPIO.LOW)
-
-
-def soilStatus():
-    return GPIO.input(channelSoil)
-
-def callback(channelSoil, channelRalay, stop):
-    if soilStatus():
-        if not stop():
-            motor_on(channelRalay)
-            MQTTClientPublisher('localhost', 1883, 'handle/pump', 'ON')
-        MQTTClientPublisher('localhost', 1883, 'status/soil', 'Water Not Detected')
+def callback():
+    if soil.status():
+        publish_pump('ON')
+        publisher.publish(TOPIC_STATUS_SOIL, 'Water Not Detected')
     else:
-        if not stop():
-            motor_off(channelRelay)
-            MQTTClientPublisher('localhost', 1883, 'handle/pump', 'OFF')
-        MQTTClientPublisher('localhost', 1883, 'status/soil', 'Water Detected')
+        publish_pump('OFF')
+        publisher.publish(TOPIC_STATUS_SOIL, 'Water Detected')
 
-
-# thread
-def _autoLoop(stop):
+def loop():
     while True:
-        callback(channelSoil, channelRelay, stop)
+        callback()
         time.sleep(1)
 
-stop_threads = True
-autoLoop = threading.Thread(target=_autoLoop, args=(lambda : stop_threads,))
-autoLoop.start()
+# on_message functions
+def on_message_auto(client, userdata, msg):
+    global stop_thread
+    stop_thread = msg.payload.decode() != "ON"
 
-# server
-def on_message_handle_pump_auto(client, userdata, msg):
-    global stop_threads
+def on_message_pump(client, userdata, msg):
+    global pump
     if msg.payload.decode() == "ON":
-        stop_threads = False
+        pump.on()
     else:
-        stop_threads = True
+        pump.off()
 
-def on_message_handle_pump_manual(client, userdata, msg):
-    global channelRelay
-    if msg.payload.decode() == "ON":
-        motor_on(channelRelay)
-    else:
-        motor_off(channelRelay)
-
-def on_message_soil_status(client, userdata, msg):
-    return soilStatus()
-
-MQTTClientSubscriber('localhost', 1883, 'handle/pump', on_message_handle_pump_manual)
-MQTTClientSubscriber('localhost', 1883, 'handle/auto', on_message_handle_pump_auto)
+# main function
+if __name__ == "__main__":
+    thread = threading.Thread(target=loop)
+    thread.start()
+    subscriber.subscribe(TOPIC_HANDLE_AUTO, on_message_auto)
+    subscriber.subscribe(TOPIC_HANDLE_PUMP, on_message_pump)
