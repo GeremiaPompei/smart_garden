@@ -1,7 +1,5 @@
 import RPi.GPIO as GPIO
 
-channel = 16
-
 class Pump:
 
     def __init__(self, channel):
