@@ -4,12 +4,13 @@ channel = 16
 
 class Pump:
 
-    def __init__(self):
+    def __init__(self, channel):
+        self.channel = channel
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(channel, GPIO.OUT)
+        GPIO.setup(self.channel, GPIO.OUT)
 
     def on(self):
-        GPIO.output(channel, GPIO.HIGH)
+        GPIO.output(self.channel, GPIO.HIGH)
 
     def off(self):
-        GPIO.output(channel, GPIO.LOW)
+        GPIO.output(self.channel, GPIO.LOW)

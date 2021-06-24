@@ -6,23 +6,34 @@ from Publisher import Publisher
 from Soil import Soil
 from Pump import Pump
 
+import os
+from os.path import join, dirname
+from dotenv import load_dotenv
+
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path)
+
 # mqtt connection data
-mqtt_ip = "localhost"
-mqtt_port = 1883
+MQTT_IP = os.environ.get("MQTT_IP")
+MQTT_PORT = (int)(os.environ.get("MQTT_PORT"))
 
 # topics
-TOPIC_HANDLE_PUMP = 'handle/pump'
-TOPIC_HANDLE_AUTO = 'handle/auto'
-TOPIC_STATUS_SOIL = 'status/soil'
+TOPIC_HANDLE_PUMP = os.environ.get("TOPIC_HANDLE_PUMP")
+TOPIC_HANDLE_AUTO = os.environ.get("TOPIC_HANDLE_AUTO")
+TOPIC_STATUS_SOIL = os.environ.get("TOPIC_STATUS_SOIL")
+
+# pins
+PIN_PUMP = (int)(os.environ.get("PIN_PUMP"))
+PIN_SOIL = (int)(os.environ.get("PIN_SOIL"))
 
 # global variable to start and stop auto
 stop_thread = True
 
-subscriber = Subscriber(mqtt_ip, mqtt_port)
-publisher = Publisher(mqtt_ip, mqtt_port)
+subscriber = Subscriber(MQTT_IP, MQTT_PORT)
+publisher = Publisher(MQTT_IP, MQTT_PORT)
 
-soil = Soil()
-pump = Pump()
+soil = Soil(PIN_SOIL)
+pump = Pump(PIN_PUMP)
 
 # threading functions
 def publish_pump(status):

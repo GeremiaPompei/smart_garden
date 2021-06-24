@@ -1,12 +1,11 @@
 import RPi.GPIO as GPIO# GPIO
 
-channel = 21
-
 class Soil:
 
-    def __init__(self):
+    def __init__(self, channel):
+        self.channel = channel
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(channel, GPIO.IN)
+        GPIO.setup(self.channel, GPIO.IN)
 
     def status(self):
-        return GPIO.input(channel)
+        return GPIO.input(self.channel)
