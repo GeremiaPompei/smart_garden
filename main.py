@@ -27,7 +27,7 @@ PIN_PUMP = (int)(os.environ.get("PIN_PUMP"))
 PIN_SOIL = (int)(os.environ.get("PIN_SOIL"))
 
 # global variable to start and stop auto
-stop_thread = False
+stop_thread = True
 
 subscriber = Subscriber(MQTT_IP, MQTT_PORT)
 publisher = Publisher(MQTT_IP, MQTT_PORT)
