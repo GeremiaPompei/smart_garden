@@ -9,5 +9,5 @@ class Publisher:
     def publish(self, topic, to_publish):
         self.client = mqtt.Client()
         self.client.connect(self.ip, self.port, 60)
-        self.client.publish(topic, to_publish);
+        self.client.publish(topic, to_publish, 0, True);
         self.client.disconnect()
