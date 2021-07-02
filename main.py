@@ -1,8 +1,7 @@
 import time
 import threading
 
-from Subscriber import Subscriber
-from Publisher import Publisher
+from MQTTClient import MQTTClient
 from Soil import Soil
 from Pump import Pump
 
@@ -29,8 +28,7 @@ PIN_SOIL = (int)(os.environ.get("PIN_SOIL"))
 # global variable to start and stop auto
 stop_thread = True
 
-subscriber = Subscriber(MQTT_IP, MQTT_PORT)
-publisher = Publisher(MQTT_IP, MQTT_PORT)
+mqtt_client = MQTTClient(MQTT_IP, MQTT_PORT)
 
 soil = Soil(PIN_SOIL)
 pump = Pump(PIN_PUMP)
@@ -39,15 +37,15 @@ pump = Pump(PIN_PUMP)
 def publish_pump(status):
     global status_thread
     if not stop_thread:
-        publisher.publish(TOPIC_HANDLE_PUMP, status)
+        mqtt_client.publish(TOPIC_HANDLE_PUMP, status)
 
 def callback():
     if soil.status():
         publish_pump('ON')
-        publisher.publish(TOPIC_STATUS_SOIL, 'Water Not Detected')
+        mqtt_client.publish(TOPIC_STATUS_SOIL, 'Water Not Detected')
     else:
         publish_pump('OFF')
-        publisher.publish(TOPIC_STATUS_SOIL, 'Water Detected')
+        mqtt_client.publish(TOPIC_STATUS_SOIL, 'Water Detected')
 
 def loop():
     while True:
@@ -70,5 +68,5 @@ def on_message_pump(client, userdata, msg):
 if __name__ == "__main__":
     thread = threading.Thread(target=loop)
     thread.start()
-    subscriber.subscribe(TOPIC_HANDLE_AUTO, on_message_auto)
-    subscriber.subscribe(TOPIC_HANDLE_PUMP, on_message_pump)
+    mqtt_client.subscribe(TOPIC_HANDLE_AUTO, on_message_auto)
+    mqtt_client.subscribe(TOPIC_HANDLE_PUMP, on_message_pump)
