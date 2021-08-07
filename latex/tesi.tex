@@ -1,0 +1,93 @@
+\documentclass{unicam_thesis}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+%\usepackage[backend=bibtex]{biblatex}
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+\lstdefinelanguage{Java}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, val, if, in, while, do, else, case, break, string, number, void, T, when, then, end, rule},
+  keywordstyle=\color{purple}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this, public, private, abstract, import},
+  ndkeywordstyle=\color{blue}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{darkgray}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{
+   language=Java,
+   backgroundcolor=\color{white},
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   numbers=left,
+   numberstyle=\footnotesize,
+   numbersep=9pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% TESI DATI FRONTESPIZIO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Analisi del framework openHAB e sviluppo di un binding per un sistema IOT}
+
+\university{Universit\`a degli Studi di Camerino}%
+\school{Scienze e Tecnologie}%
+\course{Laurea in Informatica (Classe L-31)}%
+
+
+\author{Geremia Pompei}%
+\advisor{Michele Loreti}%
+\academicyear{2020/2021}%
+\matricola{105333}%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FINE DATI FRONTESPIZIO
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{definition} \newtheorem{esempio}{Esempio}[chapter]
+\theoremstyle{definition}
+\newtheorem{definizione}{Definizione}[chapter] \theoremstyle{plain}
+\newtheorem{teorema}{Teorema}[chapter]
+
+\graphicspath{{Screenshot/},{Immagini/},{API/},{Source/}}
+\bibliography{biblio.bib}
+%\addbibresource{biblio.bib}
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\lstlistoflistings
+\listoffigures
+\listoftables
+
+\input{introduzione}
+\input{Capitolo1}
+\include{Capitolo2}
+\include{Capitolo3}
+\include{conclusione}
+
+\appendix
+%\input{schema_elettrico}
+%\input{Appendix1}
+%\input{Appendix2}
+
+\printbibliography
+
+\printindex
+
+\include{ringraziamenti}
+
+\end{document}
